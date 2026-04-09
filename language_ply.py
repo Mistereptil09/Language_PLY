@@ -2,16 +2,16 @@
 # calc.py - Expressions arithmétiques avec variables
 # -----------------------------------------------------------------------------
 reserved = {
-    'print' : 'PRINT',
-    'onlydoso' : 'IF',
-    'aslongas' : 'WHILE',
-    'notlongas' : 'ELSE',
-    'untilreaches' : 'FOR',
-    'basically' : 'DEF_FUNCTION',
-    'stop' : 'BREAK',
-    'dontstop' : 'CONTINUE',
-    'comeback' : 'RETURN',
-    'godownthere' : 'GOTO', # banished to the nether realm
+    'sing' : 'PRINT',
+    'soundcheck' : 'IF',
+    'leek_spining' : 'WHILE',
+    'but_actually' : 'ELSE',
+    'tracklist' : 'FOR',
+    'compose' : 'DEF_FUNCTION',
+    'black_out' : 'BREAK',
+    'encore' : 'CONTINUE',
+    'arigato' : 'RETURN',
+    'banished' : 'GOTO', # banished to the nether realm
 }
 
 
@@ -45,9 +45,9 @@ t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
-t_LPAREN = r'\('
-t_RPAREN = r'\)'
-t_END = r'²'
+t_LPAREN = r'\(' # banished
+t_RPAREN = r'\)' # to the shadow realm
+t_END = r'♪'
 t_EQUAL = r'='
 t_INF = r'<'
 t_SUP = r'>'
@@ -66,7 +66,7 @@ precedence = (
 )
 
 def t_NAME(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    r'[a-zA-Z_][a-zA-Z0-9_,]*'
     t.type = reserved.get(t.value, 'VARIABLE')  # Check for reserved words
     return t
 

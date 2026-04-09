@@ -51,7 +51,7 @@ class EvalClass:
         # Print (une ou plusieurs expressions)
         if operation == 'print':
             result = [self.evalExpr(argument) for argument in inst[1]]  # Évaluer chaque argument du tuple
-            print(*result)
+            print("Miku said:", *result)
             return None
 
         # Assignment (nom de variable, expression)

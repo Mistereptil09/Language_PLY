@@ -11,195 +11,195 @@ yacc.yacc()
 # 1. Tests de base - Expressions et opérateurs
 basic_tests = [
     # Arithmétique simple
-    ("Addition simple", "print(1+1)²", "2"),
-    ("Priorité opérateurs", "print(2*3+4)²", "10"),
-    ("Parenthèses", "print((2+3)*4)²", "20"),
-    ("Division/soustraction", "print(10/2-3)²", "2.0"),
+    ("Addition simple", "sing(1+1)♪", "Miku said: 2"),
+    ("Priorité opérateurs", "sing(2*3+4)♪", "Miku said: 10"),
+    ("Parenthèses", "sing((2+3)*4)♪", "Miku said: 20"),
+    ("Division/soustraction", "sing(10/2-3)♪", "Miku said: 2.0"),
 
     # Opérateurs logiques
-    ("AND/OR", "print(1@@0!@1)²", "1"),
+    ("AND/OR", "sing(1@@0!@1)♪", "Miku said: 1"),
 
     # Comparaisons
-    ("Comparaison <", "x=5² print(x<10)²", "True"),  # ← Sans 'this'
-    ("Égalité ==", "x=5² print(x==5)²", "True"),
-    ("Différent !=", "x=5² print(x!=10)²", "True"),
-    ("Plus grand >=", "print(7>=7 | 7>=8 | 7>=6)²", "True False True"),
-    ("Plus petit <=", "print(7<=7 | 7<=8 | 7<=6)²", "True True False"),
+    ("Comparaison <", "x=5♪ sing(x<10)♪", "Miku said: True"),  # ← Sans 'this'
+    ("Égalité ==", "x=5♪ sing(x==5)♪", "Miku said: True"),
+    ("Différent !=", "x=5♪ sing(x!=10)♪", "Miku said: True"),
+    ("Plus grand >=", "sing(7>=7 | 7>=8 | 7>=6)♪", "Miku said: True False True"),
+    ("Plus petit <=", "sing(7<=7 | 7<=8 | 7<=6)♪", "Miku said: True True False"),
 ]
 
 # 2. Tests variables et assignation
 variable_tests = [
     # Déclaration et usage
-    ("Variables multiples", "x=5² y=10² print(x+y)²", "15"),
-    ("Réassignation", "x=5² x=10² print(x)²", "10"),
+    ("Variables multiples", "x=5♪ y=10♪ sing(x+y)♪", "Miku said: 15"),
+    ("Réassignation", "x=5♪ x=10♪ sing(x)♪", "Miku said: 10"),
 
     # Opérateurs composés
-    ("Incrémentation ++", "x=10² x++² print(x)²", "11"),
-    ("Addition +=", "x=10² x+=5² print(x)²", "15"),
-    ("Soustraction -=", "x=10² x-=3² print(x)²", "7"),
-    ("Multiplication *=", "x=10² x*=2² print(x)²", "20"),
+    ("Incrémentation ++", "x=10♪ x++♪ sing(x)♪", "Miku said: 11"),
+    ("Addition +=", "x=10♪ x+=5♪ sing(x)♪", "Miku said: 15"),
+    ("Soustraction -=", "x=10♪ x-=3♪ sing(x)♪", "Miku said: 7"),
+    ("Multiplication *=", "x=10♪ x*=2♪ sing(x)♪", "Miku said: 20"),
 ]
 
 # 3. Tests print et strings
 print_tests = [
-    ("Print nombre", "print(42)²", "42"),
-    ("Print string", "print('Hello')²", "Hello"),
-    ("Print multiple", 'print("a" | "b" | "c")²', "a b c"),
-    ("Print expression", "x=5² y=3² print(x+y)²", "8"),
+    ("Print nombre", "sing(42)♪", "Miku said: 42"),
+    ("Print string", "sing('Hello')♪", "Miku said: Hello"),
+    ("Print multiple", 'sing("a" | "b" | "c")♪', "Miku said: a b c"),
+    ("Print expression", "x=5♪ y=3♪ sing(x+y)♪", "Miku said: 8"),
 ]
 
 # 4. Tests structures de contrôle
 control_tests = [
     # If-else
     ("If simple vrai",
-     'x=3² onlydoso x<5 ? print("OK")² !²',
-     "OK"),
+     'x=3♪ soundcheck x<5 ? sing("OK")♪ !♪',
+     "Miku said: OK"),
 
     ("If simple faux",
-     'x=7² onlydoso x<5 ? print("OK")² !²',
+     'x=7♪ soundcheck x<5 ? sing("OK")♪ !♪',
      ""),
 
     ("If-else vrai",
-     'x=3² onlydoso x<5 ? print("petit")² ! notlongas ? print("grand")² !²',
-     "petit"),
+     'x=3♪ soundcheck x<5 ? sing("petit")♪ ! but_actually ? sing("grand")♪ !♪',
+     "Miku said: petit"),
 
     ("If-else faux",
-     'x=7² onlydoso x<5 ? print("petit")² ! notlongas ? print("grand")² !²',
-     "grand"),
+     'x=7♪ soundcheck x<5 ? sing("petit")♪ ! but_actually ? sing("grand")♪ !♪',
+     "Miku said: grand"),
 
     # While
     ("While simple",
-     '''x=0² 
-        aslongas x<3 ? 
-            print(x)² 
-            x++² 
-        !²''',
-     "0\n1\n2"),
+     '''x=0♪ 
+        leek_spining x<3 ? 
+            sing(x)♪ 
+            x++♪ 
+        !♪''',
+     "Miku said: 0\nMiku said: 1\nMiku said: 2"),
 
     # For
     ("For loop",
-     'i=0² untilreaches i=0 | i<5 | i++ ? print(i)² !²',
-     "0\n1\n2\n3\n4"),
+     'i=0♪ tracklist i=0 | i<5 | i++ ? sing(i)♪ !♪',
+     "Miku said: 0\nMiku said: 1\nMiku said: 2\nMiku said: 3\nMiku said: 4"),
 ]
 
 # 5. Tests break et continue
 loop_control_tests = [
     ("Break",
-     '''x=0²
-        aslongas x<10 ?
-            onlydoso x==5 ?
-                stop²
-            !²
-            print(x)²
-            x++²
-        !²''',
-     "0\n1\n2\n3\n4"),
+     '''x=0♪
+        leek_spining x<10 ?
+            soundcheck x==5 ?
+                black_out♪
+            !♪
+            sing(x)♪
+            x++♪
+        !♪''',
+     "Miku said: 0\nMiku said: 1\nMiku said: 2\nMiku said: 3\nMiku said: 4"),
 
     ("Continue",
-     '''x=0²
-        aslongas x<5 ?
-            x++²
-            onlydoso x==3 ?
-                dontstop²
-            !²
-            print(x)²
-        !²''',
-     "1\n2\n4\n5"),
+     '''x=0♪
+        leek_spining x<5 ?
+            x++♪
+            soundcheck x==3 ?
+                encore♪
+            !♪
+            sing(x)♪
+        !♪''',
+     "Miku said: 1\nMiku said: 2\nMiku said: 4\nMiku said: 5"),
 ]
 
 # 6. Tests fonctions
 function_tests = [
     # Fonction simple
     ("Fonction sans params",
-     '''basically greet() ?
-            print("Hello!")²
-        !²
-        greet()²''',
-     "Hello!"),
+     '''compose greet() ?
+            sing("Hello!")♪
+        !♪
+        greet()♪''',
+     "Miku said: Hello!"),
 
     # Fonction avec paramètres
     ("Fonction avec params",
-     '''basically add(a | b) ?
-            comeback a + b²
-        !²
-        result = add(3 | 5)²
-        print(result)²''',
-     "8"),
+     '''compose add(a | b) ?
+            arigato a + b♪
+        !♪
+        result = add(3 | 5)♪
+        sing(result)♪''',
+     "Miku said: 8"),
 
     # Récursion
     ("Factorielle récursive",
-     '''basically factorial(n) ?
-            onlydoso n == 0 ?
-                comeback 1²
-            !²
-            comeback n * factorial(n - 1)²
-        !²
-        print(factorial(5))²''',
-     "120"),
+     '''compose factorial(n) ?
+            soundcheck n == 0 ?
+                arigato 1♪
+            !♪
+            arigato n * factorial(n - 1)♪
+        !♪
+        sing(factorial(5))♪''',
+     "Miku said: 120"),
 
     # Fonction avec plusieurs paramètres
     ("Fonction 4 paramètres",
-     '''basically show(a | b | c | d) ?
-            print(a | b | c | d)²
-        !²
-        show(1 | 2 | 3 | 4)²''',
-     "1 2 3 4"),
+     '''compose show(a | b | c | d) ?
+            sing(a | b | c | d)♪
+        !♪
+        show(1 | 2 | 3 | 4)♪''',
+     "Miku said: 1 2 3 4"),
 ]
 
 # 7. Tests scope (portée des variables)
 scope_tests = [
     ("Globale accessible",
-     '''x=100²
-        basically test() ?
-            print(x)²
-        !²
-        test()²''',
-     "100"),
+     '''x=100♪
+        compose test() ?
+            sing(x)♪
+        !♪
+        test()♪''',
+     "Miku said: 100"),
 
     ("Locale isolée",
-     '''basically test() ?
-            y=50²
-            print(y)²
-        !²
-        test()²''',
-     "50"),
+     '''compose test() ?
+            y=50♪
+            sing(y)♪
+        !♪
+        test()♪''',
+     "Miku said: 50"),
 
     ("Locale vs globale",
-     '''x=100²
-        basically test() ?
-            x=200²
-            print(x)²
-        !²
-        test()²
-        print(x)²''',
-     "200\n100"),
+     '''x=100♪
+        compose test() ?
+            x=200♪
+            sing(x)♪
+        !♪
+        test()♪
+        sing(x)♪''',
+     "Miku said: 200\nMiku said: 100"),
 
     ("Scope lexical",
-     '''x=100²
-        basically inner() ?
-            print(x)²
-        !²
-        basically main() ?
-            y=50²
-            inner()²
-        !²
-        main()²''',
-     "100"),
+     '''x=100♪
+        compose inner() ?
+            sing(x)♪
+        !♪
+        compose main() ?
+            y=50♪
+            inner()♪
+        !♪
+        main()♪''',
+     "Miku said: 100"),
 ]
 
 # 8. Tests commentaires
 comment_tests = [
     ("Commentaire simple",
      '''# Ceci est un commentaire
-        print("OK")²''',
-     "OK"),
+        sing("OK")♪''',
+     "Miku said: OK"),
 
     ("Commentaires multiples",
      '''# Ligne 1
         # Ligne 2
-        x=5² # Inline
-        print(x)²''',
-     "5"),
+        x=5♪ # Inline
+        sing(x)♪''',
+     "Miku said: 5"),
 ]
 
 # ==================== EXÉCUTION DES TESTS ====================

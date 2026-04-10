@@ -145,7 +145,6 @@ class EvalClass:
             value = self.evalExpr(inst[1])
             raise ReturnValue(value)
 
-        # Dans evalInst
         elif operation == 'continue':  # break
             raise ContinueLoop()
 

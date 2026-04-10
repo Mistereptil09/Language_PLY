@@ -45,8 +45,8 @@ t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
-t_LPAREN = r'\(' # banished
-t_RPAREN = r'\)' # to the shadow realm
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
 t_END = r'♪'
 t_EQUAL = r'='
 t_INF = r'<'

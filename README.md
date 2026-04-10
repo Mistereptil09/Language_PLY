@@ -20,21 +20,21 @@ Ce projet implémente un mini-langage de programmation complet avec :
 
 ### Version minimale
 1. **Variables multi-caractères** : `factorial`, `result`, etc.
-2. **Affectation** : `x = 5²`
-3. **Affichage d'expressions** : `print(x + y)²`
+2. **Affectation** : `x = 5♪`
+3. **Affichage d'expressions** : `sing(x + y)♪`
 4. **Structures conditionnelles** :
-   - If-then-else : `onlydoso x < 5 ? ... ! notlongas ? ... !²`
-   - If-then : `onlydoso x < 5 ? ... !²`
+   - If-then-else : `soundcheck x < 5 ? ... ! but_actually ? ... !♪`
+   - If-then : `soundcheck x < 5 ? ... !♪`
 5. **Boucles** :
-   - While : `aslongas x < 10 ? ... !²`
-   - For : `untilreaches init | condition | increment ? ... !²`
+   - While : `leek_spining x < 10 ? ... !♪`
+   - For : `tracklist init | condition | increment ? ... !♪`
 6. **Affichage de l'AST** : Automatique à chaque parsing
 
 ### Améliorations majeures
 1. **Fonctions avec paramètres et return**
-   - Définition : `basically nom(param1 | param2) ? ... !²`
-   - Appel : `resultat = fonction(arg1 | arg2)²`
-   - Return : `comeback expression²`
+   - Définition : `compose nom(param1 | param2) ? ... !♪`
+   - Appel : `resultat = fonction(arg1 | arg2)♪`
+   - Return : `arigato expression♪`
 
 2. **Scope lexical**
    - Variables globales accessibles dans les fonctions
@@ -50,15 +50,101 @@ Ce projet implémente un mini-langage de programmation complet avec :
 1. **Gestion des erreurs** : Messages explicites
 2. **Type string** : `"hello"` ou `'hello'`
 3. **Variables globales** : Scope distinct global/local
-4. **Print multiple** : `print(a | b | c)²`
+4. **Print multiple** : `sing(a | b | c)♪`
 5. **Opérateurs composés** : `x++`, `x+=`, `x-=`, `x*=`
 6. **Commentaires** : `# commentaire`
 
 ### Fonctionnalités bonus
-- Break : `stop²`
-- Continue : `dontstop²`
-- Opérateurs de comparaison : `==`, `!=`, `>=`, `<=`
+- Break : `black_out♪`
+- Continue : `encore♪`
+- Opérateurs de comparaison : `==`, `!=`, `>=`, `<=`, `<`, `>`
 - Opérateurs logiques : `@@` (AND), `!@` (OR)
 
 ### fichier de tests :
 `test_cases.py` : Contient des exemples de codes pour tester les différentes fonctionnalités du langage. Chaque programme est accompagné d'un commentaire expliquant ce qu'il fait et les résultats attendus.
+
+## Syntaxe Complète du Langage
+
+### Mots-clés réservés
+| Mot-clé | Utilisation |
+|---------|------------|
+| `sing` | Affiche une ou plusieurs expressions : `sing(expr1 | expr2)♪` |
+| `soundcheck` | Condition if : `soundcheck condition ? bloc !♪` |
+| `leek_spining` | Boucle while : `leek_spining condition ? bloc !♪` |
+| `but_actually` | Clause else : `soundcheck cond ? bloc1 ! but_actually ? bloc2 !♪` |
+| `tracklist` | Boucle for : `tracklist init \| condition \| increment ? bloc !♪` |
+| `compose` | Définition de fonction : `compose nom(params) ? bloc !♪` |
+| `black_out` | Break - Sortir d'une boucle : `black_out♪` |
+| `encore` | Continue - Aller à l'itération suivante : `encore♪` |
+| `arigato` | Return - Retourner une valeur : `arigato expression♪` |
+
+### Symboles spéciaux
+| Symbole | Utilisation |
+|---------|------------|
+| `♪` | Terminateur de statement/instruction |
+| `?` | Début de bloc (if/while/for/fonction) |
+| `!` | Fin de bloc (if/while/for/fonction) |
+| `\|` | Séparateur d'arguments/paramètres |
+| `(` `)` | Parenthèses pour grouper expressions et appels |
+
+### Opérateurs
+| Opérateur | Description |
+|-----------|------------|
+| `+` `-` `*` `/` | Arithmétique |
+| `=` | Assignation |
+| `++` | Incrémentation : `x++♪` |
+| `+=` | Addition assignée : `x+=5♪` |
+| `-=` | Soustraction assignée : `x-=3♪` |
+| `*=` | Multiplication assignée : `x*=2♪` |
+| `==` | Égalité |
+| `!=` | Inégalité |
+| `<` `>` | Comparaison |
+| `<=` `>=` | Comparaison |
+| `@@` | AND logique |
+| `!@` | OR logique |
+
+### Types de données supportés
+- **Entiers et floats** : `42`, `3.14`
+- **Strings** : `"hello"` ou `'hello'`
+- **Booléens** : Résultats des comparaisons (`True`, `False`)
+
+## Exemples d'utilisation
+
+### Variables et affectation
+```
+x=5♪
+y=10♪
+sing(x+y)♪
+```
+
+### Structures de contrôle
+```
+# If-else
+soundcheck x<5 ? sing("petit")♪ ! but_actually ? sing("grand")♪ !♪
+
+# While
+leek_spining x<3 ? sing(x)♪ x++♪ !♪
+
+# For
+tracklist i=0 | i<5 | i++ ? sing(i)♪ !♪
+```
+
+### Fonctions
+```
+compose add(a | b) ?
+    arigato a + b♪
+!♪
+result = add(3 | 5)♪
+sing(result)♪
+```
+
+### Récursion
+```
+compose factorial(n) ?
+    soundcheck n == 0 ?
+        arigato 1♪
+    !♪
+    arigato n * factorial(n - 1)♪
+!♪
+sing(factorial(5))♪
+```

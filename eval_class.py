@@ -1,244 +1,177 @@
-from genereTreeGraphviz2 import printTreeGraph
-
-class ReturnValue(Exception):
-    def __init__(self, value):
-        self.value = value
-
-class BreakLoop(Exception):
-    """Exception pour break"""
-    pass
-
-class ContinueLoop(Exception):
-    """Exception pour continue"""
-    pass
-
 class EvalClass:
     def __init__(self):
         self.global_scope = {}
         self.local_scopes = []
         self.functions = {}
-
+        self._return_value = None  # return value register for function calls
 
     def get_variable(self, name: str):
-        if self.local_scopes:
-            if name in self.local_scopes[-1]:
-                return self.local_scopes[-1][name]
+        if self.local_scopes and name in self.local_scopes[-1]:
+            return self.local_scopes[-1][name]
         if name in self.global_scope:
             return self.global_scope[name]
-
         raise Exception(f"Error: Variable '{name}' not defined")
 
-    def set_variable(self, name: str, value: str):
+    def set_variable(self, name: str, value):
         if self.local_scopes:
-            self.local_scopes[-1][name] = value # dernier dictionnaire de la pile de scopes locaux
+            self.local_scopes[-1][name] = value
         else:
             self.global_scope[name] = value
 
-    def evalInst(self, inst : tuple | str | int | list):
-        """Évalue une instruction"""
+    def evalInst(self, initial_inst: tuple | str | int | list):
+        """Évalue une instruction via une pile explicite"""
+        stack = [initial_inst]
 
-        # Liste est un bloc
-        if isinstance(inst, list):
-            for instruction in inst:
-                self.evalInst(instruction)
-            return
+        while stack:
+            inst = stack.pop()
 
-        if not isinstance(inst, tuple):
-            return
+            # Block (list) → push reversed so first instruction is on top
+            if isinstance(inst, list):
+                for instruction in reversed(inst):
+                    stack.append(instruction)
+                continue
 
-        operation = inst[0]
+            if not isinstance(inst, tuple):
+                if inst is not None:
+                    self.evalExpr(inst)
+                continue
 
-        # Print (une ou plusieurs expressions)
-        if operation == 'print':
-            result = [self.evalExpr(argument) for argument in inst[1]]  # Évaluer chaque argument du tuple
-            print("Miku said:", *result)
-            return None
+            op = inst[0]
 
-        # Assignment (nom de variable, expression)
-        elif operation == 'assign':
-            var_name = inst[1]
-            var_value = self.evalExpr(inst[2])
-            self.set_variable(var_name, var_value)
-            return None
+            # ── Internal sentinels ────────────────────────────────────────
+            if op in ('start_loop', 'end_loop'):
+                pass  # consumed by break/continue scans
 
-        # Conditionnelle (condition, bloc, bloc/else optionnel)
-        elif operation == 'if':
-            if self.evalExpr(inst[1]):  # Condition
-                self.evalInst(inst[2])  # Bloc "then"
-            elif inst[3]:
-                self.evalInst(inst[3])  # Bloc "else"
-            return None
+            elif op == '__func_end__':
+                # Reached only when no 'return' was hit (void function)
+                self.local_scopes.pop()
+                self._return_value = None
 
-        # Boucle while (condition, bloc)
-        elif operation == 'while':
-            try:
-                while self.evalExpr(inst[1]): # Condition
-                    try:
-                        self.evalInst(inst[2]) # Bloc
-                    except ContinueLoop:
-                        continue  # Recommence la boucle
-            except BreakLoop:
-                pass  # Sort de la boucle
+            # ── Instructions ──────────────────────────────────────────────
+            elif op == 'print':
+                print("Miku said:", *[self.evalExpr(arg) for arg in inst[1]])
 
-        # Boucle for (initialisation, condition, incrémentation, bloc)
-        elif operation == 'for':
-            self.evalInst(inst[1])  # Init
-            try:
-                while self.evalExpr(inst[2]): # Condition
-                    try:
-                        self.evalInst(inst[4])  # Bloc
-                    except ContinueLoop:
-                        pass  # Continue vers l'increment
-                    self.evalInst(inst[3])  # Increment
-            except BreakLoop:
-                pass
+            elif op == 'assign':
+                # Name then expression
+                self.set_variable(inst[1], self.evalExpr(inst[2]))
 
+            elif op == 'if':
+                # condition
+                if self.evalExpr(inst[1]):
+                    # if block
+                    stack.append(inst[2])
+                # else condition
+                elif inst[3]:
+                    # else block
+                    stack.append(inst[3])
 
-        # Définition de fonction (nom, liste de paramètres, bloc)
-        elif operation == 'def':
-            func_name = inst[1]
-            if func_name in self.functions:
-                raise Exception(f"Error: Function '{func_name}' already defined")
+            elif op == 'while':
+                stack.append(('end_loop',))
+                # condition and then block
+                stack.append(('while_loop', inst[1], inst[2]))
 
-            params = inst[2]  # Liste de noms ['a', 'b', 'c']
-            body = inst[3]  # Bloc d'instructions
+            elif op == 'while_loop':
+                condition, body = inst[1], inst[2]
+                if self.evalExpr(condition):
+                    stack.append(inst)             # re-check condition next iteration
+                    stack.append(('start_loop',))  # continue target
+                    stack.append(body)
 
-            self.functions[func_name] = {
-                'params': params,
-                'body': body
-            }
+            elif op == 'for':
+                stack.append(('end_loop',))
+                # condition, increment expression, block
+                stack.append(('for_loop', inst[2], inst[3], inst[4]))
+                stack.append(inst[1])  # init runs first
 
-        # Appel de fonction (nom, liste d'arguments)
-        elif operation == 'call':
-            func_name = inst[1]
-            if func_name not in self.functions:
-                raise Exception(f"Error: Function '{func_name}' not defined")
+            elif op == 'for_loop':
+                condition, increment, body = inst[1], inst[2], inst[3]
+                if self.evalExpr(condition):
+                    stack.append(inst)             # re-check condition next iteration
+                    stack.append(increment)        # increment runs after body
+                    stack.append(('start_loop',))  # continue target
+                    stack.append(body)
 
-            func = self.functions[func_name]
-            arguments = [self.evalExpr(arg) for arg in inst[2]]
+            elif op == 'def':
+                func_name = inst[1]
+                if func_name in self.functions:
+                    raise Exception(f"Error: Function '{func_name}' already defined")
+                self.functions[func_name] = {'params': inst[2], 'body': inst[3]}
 
-            # Vérifier le nombre d'arguments
-            if len(arguments) != len(func['params']):
-                raise Exception(f"Error: Function '{func_name}' expects {len(func['params'])} arguments, got {len(arguments)}")
+            elif op == 'call':
+                func_name = inst[1]
+                if func_name not in self.functions:
+                    raise Exception(f"Error: Function '{func_name}' not defined")
+                func = self.functions[func_name]
+                args = [self.evalExpr(a) for a in inst[2]]
+                if len(args) != len(func['params']):
+                    raise Exception(
+                        f"Error: Function '{func_name}' expects {len(func['params'])} arguments, got {len(args)}"
+                    )
+                self.local_scopes.append(dict(zip(func['params'], args)))
+                stack.append(('__func_end__',))   # scope cleanup if no return
+                stack.append(func['body'])
 
-            # 1. Créer un nouveau scope local
-            local_scope = {}
-            for param, arg in zip(func['params'], arguments):
-                local_scope[param] = arg
+            elif op == 'return':
+                if not self.local_scopes:
+                    raise Exception("Error: 'return' outside of a function")
+                self._return_value = self.evalExpr(inst[1])
+                # Drain work stack up to (and including) the function boundary
+                while stack:
+                    item = stack.pop()
+                    if isinstance(item, tuple) and item[0] == '__func_end__':
+                        self.local_scopes.pop()
+                        break
 
-            # 2. Empiler le scope
-            self.local_scopes.append(local_scope)
+            elif op == 'continue':
+                # Discard remaining body instructions; keep loop re-entry on the stack
+                while stack:
+                    item = stack.pop()
+                    if isinstance(item, tuple) and item[0] == 'start_loop':
+                        break
 
-            # Exécuter et capturer return
-            return_value = None
-            try:
-                # 3. Exécuter le body
-                self.evalInst(func['body'])
-            except ReturnValue as ret:
-                return_value = ret.value
-            # 4. Dépiler le scope
-            self.local_scopes.pop()
+            elif op == 'break':
+                # Discard the entire loop (body + loop sentinel + end marker)
+                while stack:
+                    item = stack.pop()
+                    if isinstance(item, tuple) and item[0] == 'end_loop':
+                        break
 
-            return return_value
+            else:
+                self.evalExpr(inst)
 
-        elif operation == 'return':
-            value = self.evalExpr(inst[1])
-            raise ReturnValue(value)
-
-        elif operation == 'continue':  # break
-            raise ContinueLoop()
-
-        elif operation == 'break':  # continue
-            raise BreakLoop()
-
-        # Si c'est juste une expression seule
-        else:
-            self.evalExpr(inst)
-            return None
+        return None
 
     def evalExpr(self, value):
         """Évalue une expression et retourne sa valeur"""
-        # Cas de base : nombres
         if isinstance(value, (int, float, bool)):
             return value
-
         if isinstance(value, str):
             return value
-
-        # Si ce n'est pas un tuple, erreur
         if not isinstance(value, tuple):
             return 0
 
-        operator = value[0]
+        op = value[0]
 
-        # si une variable reçoit le resultat d'une expression en valeur, on doit évaluer l'expression avant de l'assigner à la variable
-        if operator == 'call':
-            return self.evalInst(value)
+        if op == 'call':
+            self.evalInst(value)       # runs the call, stores result in _return_value
+            return self._return_value  # always valid: set by return, or None for void
 
-        # Variable : chercher dans le scope puis dans le global
-        if operator == 'variable':
-            var_name = value[1]
-            return self.get_variable(var_name)
+        if op == 'variable':
+            return self.get_variable(value[1])
 
-        # Opérations arithmétiques et logiques
-        if operator == '+':
-            return self.evalExpr(value[1]) + self.evalExpr(value[2])
-        elif operator == '-':
-            return self.evalExpr(value[1]) - self.evalExpr(value[2])
-        elif operator == '*':
-            return self.evalExpr(value[1]) * self.evalExpr(value[2])
-        elif operator == '/':
-            return self.evalExpr(value[1]) / self.evalExpr(value[2])
-        elif operator == '^':
-            return self.evalExpr(value[1]) ** self.evalExpr(value[2])
-        elif operator == '%':
-            return self.evalExpr(value[1]) % self.evalExpr(value[2])
-        elif operator == '<':
-            return self.evalExpr(value[1]) < self.evalExpr(value[2])
-        elif operator == '>':
-            return self.evalExpr(value[1]) > self.evalExpr(value[2])
-        elif operator == '==':
-            return self.evalExpr(value[1]) == self.evalExpr(value[2])
-        elif operator == '!=':
-            return self.evalExpr(value[1]) != self.evalExpr(value[2])
-        elif operator == '<=':
-            return self.evalExpr(value[1]) <= self.evalExpr(value[2])
-        elif operator == '>=':
-            return self.evalExpr(value[1]) >= self.evalExpr(value[2])
-        elif operator == '@@':
-            return self.evalExpr(value[1]) and self.evalExpr(value[2])
-        elif operator == '!@':
-            return self.evalExpr(value[1]) or self.evalExpr(value[2])
+        if op == '+':  return self.evalExpr(value[1]) + self.evalExpr(value[2])
+        if op == '-':  return self.evalExpr(value[1]) - self.evalExpr(value[2])
+        if op == '*':  return self.evalExpr(value[1]) * self.evalExpr(value[2])
+        if op == '/':  return self.evalExpr(value[1]) / self.evalExpr(value[2])
+        if op == '^':  return self.evalExpr(value[1]) ** self.evalExpr(value[2])
+        if op == '%':  return self.evalExpr(value[1]) % self.evalExpr(value[2])
+        if op == '<':  return self.evalExpr(value[1]) < self.evalExpr(value[2])
+        if op == '>':  return self.evalExpr(value[1]) > self.evalExpr(value[2])
+        if op == '==': return self.evalExpr(value[1]) == self.evalExpr(value[2])
+        if op == '!=': return self.evalExpr(value[1]) != self.evalExpr(value[2])
+        if op == '<=': return self.evalExpr(value[1]) <= self.evalExpr(value[2])
+        if op == '>=': return self.evalExpr(value[1]) >= self.evalExpr(value[2])
+        if op == '@@': return self.evalExpr(value[1]) and self.evalExpr(value[2])
+        if op == '!@': return self.evalExpr(value[1]) or self.evalExpr(value[2])
 
         return 0
-
-
-if __name__ == "__main__":
-    # Tests
-    evaluator = EvalClass()
-
-    # Test 1 : Expressions simples
-    print(evaluator.evalExpr(('*', ('+', 2, 5), 3)))  # 21 ✓
-    print(evaluator.evalExpr(('*', ('+', 2, 5), ('-', 10, 4))))  # 42 ✓
-
-    # Test 2 : Variables
-    evaluator.evalInst(('assign', 'x', 5))
-    print(evaluator.evalExpr(('variable', 'x')))  # 5 ✓
-
-    # Test 3 : Assignment avec expression
-    evaluator.evalInst(('assign', 'y', ('+', ('variable', 'x'), 3)))
-    print(evaluator.variables['y'])  # 8 ✓
-
-    # Test 4 : Print
-    evaluator.evalInst(('print', ('*', ('variable', 'y'), 2)))  # Affiche: 16 ✓
-
-    # Test 5 : Bloc d'instructions
-    bloc = ('bloc',
-        ('assign', 'a', 10),
-        ('bloc',
-            ('assign', 'b', 20),
-            ('print', ('+', ('variable', 'a'), ('variable', 'b')))
-        )
-    )
-    evaluator.evalInst(bloc)  # Affiche: 30 ✓
-    printTreeGraph(bloc)
